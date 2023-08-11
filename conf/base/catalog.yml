@@ -1,0 +1,71 @@
+# Here you can define all your data sets by using simple YAML syntax.
+#
+# Documentation for this file format can be found in "The Data Catalog"
+# Link: https://docs.kedro.org/en/stable/data/data_catalog.html
+
+
+# Common to all CSV files
+_csv: &csv
+  type: pandas.CSVDataSet
+
+# Raw layer
+raw_data:
+  <<: *csv
+  filepath: data/01_raw/raw_data.csv
+  load_args:
+    parse_dates: ["pickup", "dropoff"]
+  metadata:
+    kedro-viz:
+      layer: raw
+      preview_args:
+        nrows: 10
+
+# Intermediate layer
+cleaned_data:
+  <<: *csv
+  filepath: data/02_intermediate/cleaned_data.csv
+  metadata:
+    kedro-viz:
+      layer: intermediate
+      preview_args:
+        nrows: 10
+
+# Feature layer
+"{X_or_y}_{train_or_test}":
+  <<: *csv
+  filepath: data/04_feature/{X_or_y}_{train_or_test}.csv
+  metadata:
+    kedro-viz:
+      layer: feature
+      preview_args:
+        nrows: 10
+
+# Model input layer
+"encoded_X_{train_or_test}":
+  <<: *csv
+  filepath: data/05_model_input/encoded_X_{train_or_test}.csv
+  metadata:
+    kedro-viz:
+      layer: model_input
+      preview_args:
+        nrows: 10
+
+# Models layer
+random_forest_regressor:
+  type: pickle.PickleDataSet
+  filepath: data/06_models/random_forest_regressor.pickle
+  metadata:
+    kedro-viz:
+      layer: models
+  versioned: true
+
+# Model output layer
+random_forest_metrics:
+  <<: *csv
+  filepath: data/07_model_output/random_forest_metrics.csv
+  metadata:
+    kedro-viz:
+      layer: model_output
+      preview_args:
+        nrows: 10
+  versioned: true
